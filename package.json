@@ -4,7 +4,8 @@
     "type": "module",
     "scripts": {
         "latest": "bun ./latest/index.ts",
-        "start": "bun index.ts"
+        "start": "bun index.ts",
+        "lint": "bunx @biomejs/biome check --apply ./"
     },
     "devDependencies": {
         "@biomejs/biome": "1.4.1",

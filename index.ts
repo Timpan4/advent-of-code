@@ -1,6 +1,5 @@
 import * as readline from "readline";
 import fs from "fs/promises";
-import { get } from "http";
 
 console.log(`
 Welcome to the Advent of Code runner! 🎉

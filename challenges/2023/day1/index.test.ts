@@ -1,6 +1,6 @@
 import { convertTextToNumbers } from "./index";
 
-import { expect, it, describe } from "bun:test";
+import { describe, expect, it } from "bun:test";
 
 describe("convertTextToNumbers for day 1", () => {
     it("should convert 'two1nine' to '219'", () => {
