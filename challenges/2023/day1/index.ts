@@ -15,7 +15,7 @@ const number_map: { [key: string]: string } = {
 };
 
 export default async function () {
-    const input_path = path.join(import.meta.dir, "./example_input.txt");
+    const input_path = path.join(import.meta.dir, "./input.txt");
     const calibration_input_raw = Bun.file(input_path);
 
     const calibration_input = await calibration_input_raw.text();
@@ -50,23 +50,7 @@ function getCalibrationInputNumbers(input: string[]) {
     for (const line of input) {
         const new_line = convertTextToNumbers(line);
 
-        console.debug(
-            "🚀🤡💀 -------------------------------------------------------------------------------------🚀🤡💀",
-        );
-        console.debug(
-            "🚀🤡💀 ->> file: index.ts:53 ->> getCalibrationInputNumbers ->> new_line:",
-            new_line,
-        );
-
         const number = new_line.replace(/\D/g, "");
-
-        console.debug(
-            "🚀🤡💀 ->> file: index.ts:63 ->> getCalibrationInputNumbers ->> number:",
-            number,
-        );
-        console.debug(
-            "🚀🤡💀 -------------------------------------------------------------------------------------🚀🤡💀",
-        );
 
         if (!number) {
             continue;
@@ -78,47 +62,37 @@ function getCalibrationInputNumbers(input: string[]) {
     return numbers;
 }
 
-export function convertTextToNumbers(inputText: string): string {
-    // Regular expression to globally find all individual number words
-    const numberWordsRegex = /one|two|three|four|five|six|seven|eight|nine/g;
+export function convertTextToNumbers(inputText: string) {
+    // Problem: Replace all words in input_word with their corresponding number in number_map
+    // Issue 1: Digits can be merged together: "one" + "eight" = "oneight"
+    // These should be replaced with "18" not "1ight" since "eight" is a valid digit even if it is part of another word
+    // Issue 2: Replacing the original string with the new digit will result in "oneight" being replaced with "1ight" since the e is already replaced with 1
 
-    // Find all matches and convert them to their numeric representations
-    return Array.from(inputText.matchAll(numberWordsRegex), (match) => {
-        return number_map[match[0]];
-    }).join("");
+    let temp_word = inputText;
+    for (const digit in number_map) {
+        const digit_chars = digit.split("");
+        // add the digits first and last character to ensure replacement of merged digits
+        const first_char = digit_chars.at(0);
+        if (!first_char) {
+            console.log("First char is undefined for some reason");
+            process.exit(1);
+        }
+        const last_char = digit_chars.at(-1);
+        if (!last_char) {
+            console.log("Last char is undefined for some reason");
+            process.exit(1);
+        }
+        const final_digit = `${first_char}${digit}${last_char}`;
+        // Replace the original string with the extended digit to ensure that merged digits are replaced properly
+
+        temp_word = temp_word.replaceAll(digit, final_digit);
+
+        // Replace the extended digit with the numberized digit since all numbers now have been extended
+        const numberized_digit = number_map[digit].toString();
+        temp_word = temp_word.replaceAll(digit, numberized_digit);
+    }
+    return temp_word;
 }
-
-// Example usage:
-// const result = convertTextToNumbers('xxthreeightxxx');
-// console.log(result); // Outputs: '38'
-
-// export function convertTextToNumbers(text: string) {
-//     let result = "";
-//     let index = 0;
-
-//     while (index < text.length) {
-//         let replaced = false;
-
-//         // Check for each number string starting from the current position
-//         for (const [strNum, num] of Object.entries(number_map)) {
-//             if (text.substring(index, index + strNum.length) === strNum) {
-//                 // Replace with the corresponding number and move the index
-//                 result += num;
-//                 index += strNum.length;
-//                 replaced = true;
-//                 break;
-//             }
-//         }
-
-//         // If no replacement happened, keep the current character and move to the next
-//         if (!replaced) {
-//             result += text[index];
-//             index++;
-//         }
-//     }
-
-//     return result;
-// }
 
 function calculateAndSum(input: string[]) {
     const calibration_numbers = [];
@@ -129,32 +103,10 @@ function calculateAndSum(input: string[]) {
         const second_number = number.at(-1);
 
         if (!first_number || !second_number) {
-            console.debug(
-                "🚀🤡💀 -------------------------------------------------------------------------------------🚀🤡💀",
-            );
-            console.debug(
-                "🚀🤡💀 ->> file: index.ts:101 ->> calculateAndSum ->> second_number:",
-                first_number,
-                number.length,
-            );
-            console.debug(
-                "🚀🤡💀 -------------------------------------------------------------------------------------🚀🤡💀",
-            );
             continue;
         }
         const congatenated_number = Number.parseInt(
             first_number + second_number,
-        );
-
-        console.debug(
-            "🚀🤡💀 -------------------------------------------------------------------------------------------------🚀🤡💀",
-        );
-        console.debug(
-            "🚀🤡💀 ->> file: index.ts:135 ->> calculateAndSum ->> congatenated_number:",
-            congatenated_number,
-        );
-        console.debug(
-            "🚀🤡💀 -------------------------------------------------------------------------------------------------🚀🤡💀",
         );
 
         calibration_numbers.push(congatenated_number);
